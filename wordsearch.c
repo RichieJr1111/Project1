@@ -6,6 +6,7 @@
 // Feel free to declare any helper functions or global variables
 void printPuzzle(char** arr);
 void searchPuzzle(char** arr, char* word);
+char toLower(char c);
 int bSize;
 // Main function, DO NOT MODIFY
 int main(int argc, char **argv) 
@@ -65,6 +66,17 @@ void printPuzzle(char** arr)
         printf("\n");
     }
     printf("\n");
+}
+
+char toLower(char c)
+{
+    //97 - 65
+    int temp = (int)c;
+    if(temp < 97)
+    {
+        temp = temp + (97 - 65);
+    }
+    return ((char)temp);
 }
 
 void searchPuzzle(char** arr, char* word) 
