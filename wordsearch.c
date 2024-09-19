@@ -182,6 +182,7 @@ void printPuzzle(char** arr)
         for(int j = 0; j < bSize; j++)
         {
             //set a newly initialized memory to 2 chars for our char string
+            //should probably use the array creation function for this to make it cleaner since that's already a method but eh
             char* var = (char*)malloc(sizeof(char*)*2);
             //set the first char of our string to the char to be displayed
             (*var) = *(*(arr + i) + j);
@@ -232,6 +233,32 @@ char toUpper(char c)
         temp = temp - (97 - 65);
     }
     return ((char)temp);
+}
+
+int strSize(char* str)
+{
+    int size = 0;
+    char curChar = *str;
+    while(*(str + size) != '\0')
+    {
+        size++;
+    }
+
+    return size+1;
+}
+
+char* strToLower(char* str)
+{
+    char* outputStr = (char*)intializeArray(strSize(str),sizeof(char));
+
+    int size = 0;
+    while(*(str + size) != '\0')
+    {
+        size++;
+        *(outputStr + size) = toLower(*(str + size));
+    }
+    *(outputStr + size + 1) = '\0';
+    return outputStr;
 }
 
 /**
