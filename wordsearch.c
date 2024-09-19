@@ -50,21 +50,96 @@ int main(int argc, char **argv)
     return 0;
 }
 
+
+/**
+ * initializes an array without the use of array syntax
+ * @param arraySize how long you want your array to be
+ * @param dataMemorySize sizeof(value) or the size in memory of your dataType
+ */
+void* intializeArray(int arraySize, int dataMemorySize)
+{
+    //add the empty memoryspace at the end
+    return malloc((arraySize+1) * dataMemorySize);
+}
+
+/**
+ * just a simple helper for making string 2d arrays. filled with garbage data on initialize the char* pointers must be allocated and set still
+ * @param rowSize number of rows in the 2d array
+ * @param colombSize number of colombs in the array
+ */
+char*** initialize2dStrArray(int rowSize, int colombSize)
+{
+    char*** finalArray = (void*)intializeArray(rowSize, sizeof(char***));
+    for(int i = 0; i < rowSize; i++)
+    {
+        *(finalArray + i) = (void*)intializeArray(colombSize, sizeof(char***));
+    }
+    return finalArray;
+}
+
+/**
+ * prints a 2d string array to the console in a readable format
+ */
+void printSquareStrArray(char*** arr, int arraySize)
+{
+    //loops through and prints the char*** array
+    for(int i = 0; i < arraySize; i++)
+    {
+        for(int j = 0; j < arraySize; j++)
+        {
+            //pointer array magic
+            printf("%s ", *(*(arr + i) + j));
+        }
+        printf("\n");
+    }
+    printf("\n");    
+}
+
 void printPuzzle(char** arr) 
 {
     // This function will print out the complete puzzle grid (arr).
     // It must produce the output in the SAME format as the samples
     // in the instructions.
     // Your implementation here...
+
+
+    //initalize and array to the size of bSize
+    char*** strArray = initialize2dStrArray(bSize, bSize);
+
+    //set each char pointer to the char pointer of the puzzle
     for(int i = 0; i < bSize; i++)
     {
         for(int j = 0; j < bSize; j++)
         {
-            printf("%c ", *(*(arr + i) + j));
+            //set a newly initialized memory to 2 chars for our char string
+            char* var = (char*)malloc(sizeof(char*)*2);
+            //set the first char of our string to the char to be displayed
+            (*var) = *(*(arr + i) + j);
+            //add the string end charecter
+            *(var + 1) = '\0';
+            //add the string pointer to the 3d array we made
+            *(*(strArray + i) + j) = var;
         }
-        printf("\n");
     }
-    printf("\n");
+
+    //tada we now have something we can print with our method without code copyPaste!
+    printSquareStrArray(strArray, bSize);
+
+    //free the memory we just allocated
+
+    //should probably have a helper method for freeing strings in an array
+    for(int i = 0; i < bSize; i++)
+    {
+        for(int j = 0; j < bSize; j++)
+        {
+            //free the strings in the array
+            free(*(*(strArray + i) + j));
+        }
+        //free the pointers to the strings
+        free(*(strArray + i));
+    }
+    //free the outer array of pointers
+    free(strArray);
 }
 
 void searchPuzzle(char** arr, char* word) 
