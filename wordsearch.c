@@ -65,6 +65,48 @@ void* intializeArray(int arraySize, int dataMemorySize)
 }
 
 /**
+ * takes a string and a string to add to it and return a new string with the elements of the old and new
+ * @param original the string to add to
+ * @param append the string being appended / added
+ */
+/*
+char* strAppend(char* original, char* append)
+{
+    int originalSize = 0;
+    char finishedRead = 0;
+    //loop until we made it all the way through the string
+    while(finishedRead == 0)
+    {
+        //if this charecter is the end of the string end the loop and stop increasing size
+        if(*(original + originalSize) == '\0')
+        {
+            finishedRead = 1;
+        }
+        else
+        {
+            originalSize++;
+        }
+    }
+    int appendSize = 0;
+    finishedRead = 0;
+    //loop until we made it all the way through the string
+    while(finishedRead == 0)
+    {
+        //if this charecter is the end of the string end the loop and stop increasing size
+        if(*(append + appendSize) == '\0')
+        {
+            finishedRead = 1;
+        }
+        else
+        {
+            appendSize++;
+        }
+    }
+
+    sprintf(malloc(appendSize + originalSize), "%s%s", original, append);
+}*/
+
+/**
  * just a simple helper for making string 2d arrays. filled with garbage data on initialize the char* pointers must be allocated and set still
  * @param rowSize number of rows in the 2d array
  * @param colombSize number of colombs in the array
