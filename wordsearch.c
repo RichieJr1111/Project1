@@ -6,6 +6,8 @@
 // Feel free to declare any helper functions or global variables
 void printPuzzle(char** arr);
 void searchPuzzle(char** arr, char* word);
+char toLower(char c);
+void findHeadChar(char** arr, char c, int* x, int* y);
 int bSize;
 // Main function, DO NOT MODIFY
 int main(int argc, char **argv) 
@@ -140,6 +142,47 @@ void printPuzzle(char** arr)
     }
     //free the outer array of pointers
     free(strArray);
+}
+
+char toLower(char c)
+{
+    //97 - 65
+    int temp = (int)c;
+    if(temp < 97)
+    {
+        temp = temp + (97 - 65);
+    }
+    return ((char)temp);
+}
+
+char toUpper(char c)
+{
+    //97 - 65
+    int temp = (int)c;
+    if(temp >= 97)
+    {
+        temp = temp - (97 - 65);
+    }
+    return ((char)temp);
+}
+
+void findHeadChar(char** arr, char c, int* x, int* y)
+{
+    // add check to skip if solutions contations this as 1 (the head of a word already
+    *x = -1;
+    *y = -1;
+    for(int i = 0; i < bSize; i++)
+    {
+        for(int j = 0; j < bSize; j++)
+        {
+            if(*(*(arr + i) + j) == c)
+            {
+                *x = i;
+                *y = j;
+                break;
+            }
+        }
+    }
 }
 
 void searchPuzzle(char** arr, char* word) 
