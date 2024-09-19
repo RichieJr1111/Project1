@@ -302,7 +302,7 @@ LinkedList findLetter2dArr(char** arr, int size, char c)
  * @param size the size of the input 2d array
  * @param cordinates the coords to get of place to start the ring in the 2d array
  * @param charToFind the charecter to find in the 2d array
- * @returns a linked list contating all found instances of a char in the surrounding grid
+ * @returns a linked list contating the coordinates all found instances of a char in the surrounding grid
  */
 LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char charToFind)
 {
