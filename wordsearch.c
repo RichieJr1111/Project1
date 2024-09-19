@@ -4,10 +4,21 @@
 
 // Declarations of the two functions you will implement
 // Feel free to declare any helper functions or global variables
+typedef struct struct_Coord Coords;
+typedef struct Node struct_Node;
+typedef struct Node* LinkedList;
+struct struct_Coord {
+    int x;
+    int y;
+};
+struct Node {
+    void* data;
+    LinkedList next;
+};
+
 void printPuzzle(char** arr);
 void searchPuzzle(char** arr, char* word);
 char toLower(char c);
-void findHeadChar(char** arr, char c, int* x, int* y);
 int bSize;
 // Main function, DO NOT MODIFY
 int main(int argc, char **argv) 
@@ -51,7 +62,64 @@ int main(int argc, char **argv)
     searchPuzzle(block, word);
     return 0;
 }
+/**
+ * initializes a linkedList
+ * @return a linkedlist pointer
+ */
+LinkedList createLinkedList()
+{
+    return NULL;
+}
 
+/**
+ * adds data to the linked list
+ * @param inputList a pointer to the linkedList pointer (we will add to this list)
+ * @param data the data we are adding
+ */
+void appendLinkedList(LinkedList* inputList, void* data)
+{
+    LinkedList lastHead = *inputList;
+    LinkedList newHead = (LinkedList)malloc(sizeof(struct_Node));
+    newHead->data = data;
+    newHead->next = lastHead;
+    (*inputList) = newHead;
+}
+
+/**
+ * prints a whole linkedlist for debugging puposes. only works for linkedLists of COORDS which is what we are using as we need a library to do more type based stuff easily
+ * @param inputList a pointer to the linkedList to print
+ * @returns linked lists of COORDS only
+ */
+void printsLinkedList(LinkedList* inputList)
+{
+    LinkedList stepList = *inputList;
+    //Loop until we reach a NULL pointer for next meaning we hit the end freeing each one
+    while(stepList != NULL)
+    {
+        printf("(%d,%d)\n",((Coords*)(stepList->data))->x,((Coords*)(stepList->data))->y);
+        stepList = stepList->next;
+    }
+}
+
+/**
+ * frees an entire linkedList
+ * @param inputList a pointer to the linkedList pointer we are removing
+ */
+void freeLinkedList(LinkedList* inputList)
+{
+    LinkedList curList;
+    LinkedList nextLink = *inputList;
+    //Loop until we reach a NULL pointer for next meaning we hit the end freeing each one
+    while(nextLink != NULL)
+    {
+        curList = nextLink;
+        nextLink = nextLink->next;
+        free(nextLink->data);
+        free(curList);
+    }
+    //set our linkedList that has been empty to the NULL pointer
+    (*inputList) = nextLink;
+}
 
 /**
  * initializes an array without the use of array syntax
@@ -63,48 +131,6 @@ void* intializeArray(int arraySize, int dataMemorySize)
     //add the empty memoryspace at the end
     return malloc((arraySize+1) * dataMemorySize);
 }
-
-/**
- * takes a string and a string to add to it and return a new string with the elements of the old and new
- * @param original the string to add to
- * @param append the string being appended / added
- */
-/*
-char* strAppend(char* original, char* append)
-{
-    int originalSize = 0;
-    char finishedRead = 0;
-    //loop until we made it all the way through the string
-    while(finishedRead == 0)
-    {
-        //if this charecter is the end of the string end the loop and stop increasing size
-        if(*(original + originalSize) == '\0')
-        {
-            finishedRead = 1;
-        }
-        else
-        {
-            originalSize++;
-        }
-    }
-    int appendSize = 0;
-    finishedRead = 0;
-    //loop until we made it all the way through the string
-    while(finishedRead == 0)
-    {
-        //if this charecter is the end of the string end the loop and stop increasing size
-        if(*(append + appendSize) == '\0')
-        {
-            finishedRead = 1;
-        }
-        else
-        {
-            appendSize++;
-        }
-    }
-
-    sprintf(malloc(appendSize + originalSize), "%s%s", original, append);
-}*/
 
 /**
  * just a simple helper for making string 2d arrays. filled with garbage data on initialize the char* pointers must be allocated and set still
@@ -208,83 +234,83 @@ char toUpper(char c)
     return ((char)temp);
 }
 
-void findHeadChar(char** arr, char c, int* x, int* y)
+/**
+ * a function for creating coords more easily, handles allocation of memory and setting all in one
+ */
+Coords* createCoords(int x, int y)
 {
-    // add check to skip if solutions contations this as 1 (the head of a word already
-    *x = -1;
-    *y = -1;
-    for(int i = 0; i < bSize; i++)
+    Coords* hit = (Coords*)malloc(sizeof(Coords));
+    hit->x = x;
+    hit->y = y;
+    return hit;
+}
+
+/**
+ * finds all chars in a squared 2d array that match the given char
+ * @param arr the squared 2d array to search
+ * @param size the size of the input 2d array
+ * @param the charecter to find
+ * @returns a linkedlist with all found coordinates matching the starting char
+ */
+LinkedList findLetter2dArr(char** arr, int size, char c)
+{
+    LinkedList hits = createLinkedList();
+    for(int i = 0; i < size; i++)
     {
-        for(int j = 0; j < bSize; j++)
+        for(int j = 0; j < size; j++)
         {
             if(*(*(arr + i) + j) == c)
             {
-                *x = i;
-                *y = j;
-                break;
+                Coords* hit = createCoords(i,j);
+                appendLinkedList(&hits, hit);
             }
         }
     }
+    return hits;
 }
 
-//branching checks every possible way to make the word
-/*
-arr is array to search
-c is string we are searching for
-indexLetter is letter we are looking for
-x is x coord we ar currently at
-y is y coord (not sure of row vs collumn for these)
-*/
-int findConnectedChars(char** arr, char* c, int indexLetter, int x, int y)
+/**
+ * finds all instances of the specified char surrounding the input coords in a squared 2d array
+ * @param arr the squared 2d array to search 
+ * @param size the size of the input 2d array
+ * @param cordinates the coords to get of place to start the ring in the 2d array
+ * @param charToFind the charecter to find in the 2d array
+ * @returns a linked list contating all found instances of a char in the surrounding grid
+ */
+LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char charToFind)
 {
-    // add check to skip if solutions contations this as 1 (the head of a word already
-    //if end of word return BLANK
-    if(indexLetter >= strlen(c) && *(c + indexLetter) == '\0') 
+    //create our return linked list
+    LinkedList hits = createLinkedList();
+    //we need a ring around the charecters so this makes the input one back (if we did not hit an edge)
+    //probably a smarter way to do this, but ehh...
+    int x = cordinates.x;
+    if(x > 0)
     {
-        return 1;
+        x--;
     }
-    //else if 
-    else if(*(c + indexLetter) != *(*(arr + x) + y))
+    int y = cordinates.y;
+    if(y > 0)
     {
-        return 0;
+        y--;
     }
-    else
+    //loop the 9 digits with the middle one as the center, unless we go over the far edge (x+2 is upper bound, x lower bound at this point)
+    for(int i = x; i <= cordinates.x+1 && i < size; i++)
     {
-        printf("%c\n\n", *(*(arr + x) + y));
-        if(x + 1 < bSize)
+        for(int j = y; j <= cordinates.y+1 && j < size; j++)
         {
-            findConnectedChars(arr, c, indexLetter + 1, x + 1, y);
-            if(y - 1 >= 0)
+            //edge case for the middle coordinate not finding itself
+            if(!(i == cordinates.x && j == cordinates.y))
             {
-                findConnectedChars(arr, c, indexLetter + 1, x + 1, y - 1);
-            }
-            if(y + 1 < bSize)
-            {
-                findConnectedChars(arr, c, indexLetter + 1, x + 1, y + 1);
-            }
-        }
-        if(x - 1 >= 0)
-        {
-            findConnectedChars(arr, c, indexLetter + 1, x - 1, y);
-            if(y - 1 >= 0)
-            {
-                findConnectedChars(arr, c, indexLetter + 1, x - 1, y - 1);
-            }
-            if(y + 1 < bSize)
-            {
-                findConnectedChars(arr, c, indexLetter + 1, x - 1, y + 1);
+                //if the charecter we found is the one we want, then we return the coordinates as an array
+                if(*(*(arr + i) + j) == charToFind)
+                {
+                    Coords* hit = createCoords(i,j);
+                    appendLinkedList(&hits, hit);
+                }
             }
         }
-        if(y - 1 >= 0)
-        {
-            findConnectedChars(arr, c, indexLetter + 1, x, y - 1);
-        }
-        if(y + 1 < bSize)
-        {
-            findConnectedChars(arr, c, indexLetter + 1, x, y + 1);
-        }
-        return 0;
     }
+    return hits;
 }
 
 void searchPuzzle(char** arr, char* word) 
@@ -294,19 +320,25 @@ void searchPuzzle(char** arr, char* word)
     // as shown in the sample runs. If not found, it will print a
     // different message as shown in the sample runs.
     // Your implementation here...
-    int x;
-    int y;
-    findHeadChar(arr, *(word), &x, &y); 
+
+    LinkedList found = findLetter2dArr(arr, bSize, *word); 
     // printf("%d %d", x, y);
-    if(x == -1)
+    if(found == NULL)
     {
         printf("ERRIR MESSAGE");
     }
-    else if(findConnectedChars(arr, word, 0, x, y))
+    else
+    {
+        LinkedList x = findCharInSurroundings(arr, bSize, *((Coords*)(found->data)), 'A');
+        printsLinkedList(&found);
+        printf("--Break--\n");
+        printsLinkedList(&x);
+    }
+    /*else if()
     {
         printf("Word found!");
         printf("Printing the search path:");
 
-    }
+    }*/
     // char **block = (char**)malloc(bSize * sizeof(char*));   
 }
