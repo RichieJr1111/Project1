@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     // Print out original puzzle grid
     printf("\nPrinting puzzle before search:\n");
     printPuzzle(block);
-    // Call searchPuzzle to the word in the puzzle
+    // Call searchPuzzle to the word in the puzzle  
     searchPuzzle(block, word);
     return 0;
 }
@@ -185,6 +185,66 @@ void findHeadChar(char** arr, char c, int* x, int* y)
     }
 }
 
+//branching checks every possible way to make the word
+/*
+arr is array to search
+c is string we are searching for
+indexLetter is letter we are looking for
+x is x coord we ar currently at
+y is y coord (not sure of row vs collumn for these)
+*/
+int findConnectedChars(char** arr, char* c, int indexLetter, int x, int y)
+{
+    // add check to skip if solutions contations this as 1 (the head of a word already
+    //if end of word return BLANK
+    if(indexLetter >= strlen(c) && *(c + indexLetter) == '\0') 
+    {
+        return 1;
+    }
+    //else if 
+    else if(*(c + indexLetter) != *(*(arr + x) + y))
+    {
+        return 0;
+    }
+    else
+    {
+        printf("%c\n\n", *(*(arr + x) + y));
+        if(x + 1 < bSize)
+        {
+            findConnectedChars(arr, c, indexLetter + 1, x + 1, y);
+            if(y - 1 >= 0)
+            {
+                findConnectedChars(arr, c, indexLetter + 1, x + 1, y - 1);
+            }
+            if(y + 1 < bSize)
+            {
+                findConnectedChars(arr, c, indexLetter + 1, x + 1, y + 1);
+            }
+        }
+        if(x - 1 >= 0)
+        {
+            findConnectedChars(arr, c, indexLetter + 1, x - 1, y);
+            if(y - 1 >= 0)
+            {
+                findConnectedChars(arr, c, indexLetter + 1, x - 1, y - 1);
+            }
+            if(y + 1 < bSize)
+            {
+                findConnectedChars(arr, c, indexLetter + 1, x - 1, y + 1);
+            }
+        }
+        if(y - 1 >= 0)
+        {
+            findConnectedChars(arr, c, indexLetter + 1, x, y - 1);
+        }
+        if(y + 1 < bSize)
+        {
+            findConnectedChars(arr, c, indexLetter + 1, x, y + 1);
+        }
+        return 0;
+    }
+}
+
 void searchPuzzle(char** arr, char* word) 
 {
     // This function checks if arr contains the search word. If the
@@ -192,7 +252,19 @@ void searchPuzzle(char** arr, char* word)
     // as shown in the sample runs. If not found, it will print a
     // different message as shown in the sample runs.
     // Your implementation here...
-    printf("Word found!");
+    int x;
+    int y;
+    findHeadChar(arr, *(word), &x, &y); 
+    // printf("%d %d", x, y);
+    if(x == -1)
+    {
+        printf("ERRIR MESSAGE");
+    }
+    else if(findConnectedChars(arr, word, 0, x, y))
+    {
+        printf("Word found!");
+        printf("Printing the search path:");
+
+    }
     // char **block = (char**)malloc(bSize * sizeof(char*));   
-    printf("Printing the search path:");
 }
