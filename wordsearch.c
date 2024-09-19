@@ -19,6 +19,7 @@ struct Node {
 void printPuzzle(char** arr);
 void searchPuzzle(char** arr, char* word);
 char toLower(char c);
+void findAllCharInstances(LinkedList* resultslist, char** arr,  Coords coordinates, char* word);
 int bSize;
 // Main function, DO NOT MODIFY
 int main(int argc, char **argv) 
@@ -325,19 +326,67 @@ LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char 
     {
         for(int j = y; j <= cordinates.y+1 && j < size; j++)
         {
+            // printf("(%d,%d) ", i,j);
             //edge case for the middle coordinate not finding itself
-            if(!(i == cordinates.x && j == cordinates.y))
-            {
+            if(i != cordinates.x || j != cordinates.y)
+            {  
+                // printf("(%c/%c) : (%d,%d) \n", (*(*(arr + i) + j)), toUpper(charToFind), i, j);
                 //if the charecter we found is the one we want, then we return the coordinates as an array
-                if(*(*(arr + i) + j) == charToFind)
+                if(toLower(*(*(arr + i) + j)) == toLower(charToFind))
                 {
+                    // printf("(%c) : (%d,%d) \n", *(*(arr + i) + j), i, j);
                     Coords* hit = createCoords(i,j);
                     appendLinkedList(&hits, hit);
+                    // printsLinkedList(&hits); 
                 }
             }
         }
     }
     return hits;
+}
+
+//run every possibility DFS searching for  ways to find the word from the one starting point
+void findAllCharInstances(LinkedList* resultslist, char** arr,  Coords coordinates, char* word)
+{
+    //handle end of word
+    if(*word == '\0')
+    {
+        //this means the right path is found or nothing was entered
+        printsLinkedList(resultslist); 
+        return;
+    }
+    //find all hits
+    LinkedList Hits = createLinkedList();
+    Hits = findCharInSurroundings(arr, bSize, coordinates, (*(word + 1)));
+    // appendLinkedList(&Hits, (findCharInSurroundings(arr, bSize, coordinates, toUpper(*(word)))));
+    if(Hits != NULL)
+    {
+        printsLinkedList(&Hits); 
+        // recur with all hits
+        Coords* temp = (Coords*) Hits->data;
+        // printf("(%d,%d)\n", ((Coords*)(temp))->x, ((Coords*)(temp))->y);
+        // int indexInLinkedList = 1;
+        // printf("%c", *((word) + 1))    ;
+        while(temp != NULL && *word != '\0') //&& Hits != NULL
+        {
+            // if(*((word + 1)) != '\0')
+            // {
+            //     return;
+            // }
+            findAllCharInstances(resultslist, arr,  *temp, ((word) + 1));
+            Hits = Hits->next;
+            temp = (Hits->data);
+            // indexInLinkedList++;
+            // printf("Hits Explores += %d", indexInLinkedList);
+        }
+    }
+    //if one of the hits is the end of the word return that list in resultslist
+    // resultslist = Hits;
+    // if(word == '\0')
+    // {
+    //     appendLinkedList(resultslist, temp);
+    // printsLinkedList(resultslist); 
+    // }
 }
 
 void searchPuzzle(char** arr, char* word) 
@@ -347,19 +396,22 @@ void searchPuzzle(char** arr, char* word)
     // as shown in the sample runs. If not found, it will print a
     // different message as shown in the sample runs.
     // Your implementation here...
-
-    LinkedList found = findLetter2dArr(arr, bSize, *word); 
-    // printf("%d %d", x, y);
+    //add do while loop for whole function that says while(found != null and print Word not found! based on how many solutions there are)
+    LinkedList found = findLetter2dArr(arr, bSize, toUpper(*word)); 
+    // printf("(%d,%d)\n", ((Coords*)(found->data))->x, ((Coords*)(found->data))->y);
     if(found == NULL)
     {
-        printf("ERRIR MESSAGE");
+        printf("Word not found!");
     }
     else
     {
-        LinkedList x = findCharInSurroundings(arr, bSize, *((Coords*)(found->data)), 'A');
+        LinkedList* x;
+        *x = (createLinkedList());
+        findAllCharInstances (x, arr, *((Coords*)(found->data)), word);
+        // LinkedList x = findCharInSurroundings(arr, bSize, *((Coords*)(found->data)), toUpper(*(word + 1)));
         printsLinkedList(&found);
         printf("--Break--\n");
-        printsLinkedList(&x);
+        printsLinkedList(x);
     }
     /*else if()
     {
