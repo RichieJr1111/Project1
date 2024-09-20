@@ -104,6 +104,56 @@ void printsLinkedList(LinkedList* inputList)
 }
 
 /**
+ * Flips a linked list
+ * @param list the list to flip
+ */
+void flipLinkedList(LinkedList* list)
+{
+    LinkedList stepList = *list;
+    LinkedList curList;
+
+    *list = createLinkedList();
+    //Loop until we reach a NULL pointer for next meaning we hit the end freeing each one
+    while(stepList != NULL)
+    {
+        curList = stepList;
+        stepList = stepList->next;
+        appendLinkedList(list, curList->data);
+        //make sure to free data of the old list since we are moving it to flip it
+        free(curList);
+    }
+}
+
+/**
+ * the method called by copyLinkedList. Slightly faster but gives an inverted copy. Useful if you don't care about order
+ */
+LinkedList copyInvertedLinkedList(LinkedList* original, int size)
+{
+    LinkedList newList = createLinkedList();
+    LinkedList stepList = *original;
+    //Loop until we reach a NULL pointer for next meaning we hit the end freeing each one
+    while(stepList != NULL)
+    {
+        appendLinkedList(&newList, memcpy(malloc(size), stepList->data, size));
+        stepList = stepList->next;
+    }
+    return newList;
+}
+
+/**
+ * copies a linkedList by value
+ * @param original the linked list to be copied
+ * @param size the size of the datatype the linked list stores ex:(sizeof(int))
+ * @returns the new linkedlist that has pointers to new locations in memory containing the same data
+ */
+LinkedList copyLinkedList(LinkedList* original, int size)
+{
+    LinkedList result = copyInvertedLinkedList(original, size);
+    flipLinkedList(&result);
+    return result;
+}
+
+/**
  * frees an entire linkedList
  * @param inputList a pointer to the linkedList pointer we are removing
  */
