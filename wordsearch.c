@@ -88,6 +88,18 @@ void appendLinkedList(LinkedList* inputList, void* data)
 }
 
 /**
+ * pops the first element out of the linked list
+ * @param inputList the linked list to pop
+ */
+void popLinkedList(LinkedList* inputList)
+{
+    LinkedList frontNode = *inputList;
+    *inputList = (*inputList)->next;
+    free(frontNode->data);
+    free(frontNode);
+}
+
+/**
  * prints a whole linkedlist for debugging puposes. only works for linkedLists of COORDS which is what we are using as we need a library to do more type based stuff easily
  * @param inputList a pointer to the linkedList to print
  * @returns linked lists of COORDS only
