@@ -19,7 +19,8 @@ struct Node {
 void printPuzzle(char** arr);
 void searchPuzzle(char** arr, char* word);
 char toLower(char c);
-void findAllCharInstances(LinkedList* resultslist, char** arr,  Coords coordinates, char* word);
+void findWordIn2dCharArr(LinkedList resultslist, char** arr,  Coords coordinates, char* word);
+LinkedList copyLinkedList(LinkedList* original, int dataSize);
 int bSize;
 // Main function, DO NOT MODIFY
 int main(int argc, char **argv) 
@@ -115,7 +116,7 @@ void freeLinkedList(LinkedList* inputList)
     {
         curList = nextLink;
         nextLink = nextLink->next;
-        free(nextLink->data);
+        free(curList->data);
         free(curList);
     }
     //set our linkedList that has been empty to the NULL pointer
@@ -332,7 +333,7 @@ LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char 
             {  
                 // printf("(%c/%c) : (%d,%d) \n", (*(*(arr + i) + j)), toUpper(charToFind), i, j);
                 //if the charecter we found is the one we want, then we return the coordinates as an array
-                if(toLower(*(*(arr + i) + j)) == toLower(charToFind))
+                if(*(*(arr + i) + j) == charToFind)
                 {
                     // printf("(%c) : (%d,%d) \n", *(*(arr + i) + j), i, j);
                     Coords* hit = createCoords(i,j);
@@ -346,39 +347,45 @@ LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char 
 }
 
 //run every possibility DFS searching for  ways to find the word from the one starting point
-void findAllCharInstances(LinkedList* resultslist, char** arr,  Coords coordinates, char* word)
+void findWordIn2dCharArr(LinkedList resultslist, char** arr,  Coords coordinates, char* word)
 {
     //handle end of word
     if(*word == '\0')
     {
         //this means the right path is found or nothing was entered
-        printsLinkedList(resultslist); 
+        printsLinkedList(&((LinkedList)resultslist->data));
+        appendLinkedList(&resultslist, createLinkedList());
         return;
     }
     //find all hits
-    LinkedList Hits = createLinkedList();
-    Hits = findCharInSurroundings(arr, bSize, coordinates, (*(word + 1)));
+    LinkedList Hits = findCharInSurroundings(arr, bSize, coordinates, *word);
     // appendLinkedList(&Hits, (findCharInSurroundings(arr, bSize, coordinates, toUpper(*(word)))));
     if(Hits != NULL)
     {
         printsLinkedList(&Hits); 
         // recur with all hits
-        Coords* temp = (Coords*) Hits->data;
+        Coords* hitCoord = (Coords*) Hits->data;
+        appendLinkedList(&(resultslist->data), hitCoord);
         // printf("(%d,%d)\n", ((Coords*)(temp))->x, ((Coords*)(temp))->y);
         // int indexInLinkedList = 1;
         // printf("%c", *((word) + 1))    ;
-        while(temp != NULL && *word != '\0') //&& Hits != NULL
+        while(Hits != NULL) //&& Hits != NULL
         {
             // if(*((word + 1)) != '\0')
             // {
             //     return;
             // }
-            findAllCharInstances(resultslist, arr,  *temp, ((word) + 1));
+            findWordIn2dCharArr(resultslist, arr,  *hitCoord, (word + 1));
             Hits = Hits->next;
-            temp = (Hits->data);
+            hitCoord = (Coords*)(Hits->data);
             // indexInLinkedList++;
             // printf("Hits Explores += %d", indexInLinkedList);
         }
+    }
+    else
+    {
+        printf("found bad and freeing at: (%d,%d) char '%c'", coordinates.x, coordinates.y, *word);
+        freeLinkedList((LinkedList)resultslist->data);
     }
     //if one of the hits is the end of the word return that list in resultslist
     // resultslist = Hits;
@@ -407,7 +414,7 @@ void searchPuzzle(char** arr, char* word)
     {
         LinkedList* x;
         *x = (createLinkedList());
-        findAllCharInstances (x, arr, *((Coords*)(found->data)), word);
+        findWordIn2dCharArr (x, arr, *((Coords*)(found->data)), word);
         // LinkedList x = findCharInSurroundings(arr, bSize, *((Coords*)(found->data)), toUpper(*(word + 1)));
         printsLinkedList(&found);
         printf("--Break--\n");
