@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <math.h>
 // Declarations of the two functions you will implement
 // Feel free to declare any helper functions or global variables
 typedef struct struct_Coord Coords;
@@ -417,7 +417,7 @@ LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char 
             {  
                 // printf("(%c/%c) : (%d,%d) \n", (*(*(arr + i) + j)), toUpper(charToFind), i, j);
                 //if the charecter we found is the one we want, then we return the coordinates as an array
-                if(*(*(arr + i) + j) == charToFind)
+                if(toUpper(*(*(arr + i) + j)) == toUpper(charToFind))
                 {
                     // printf("(%c) : (%d,%d) \n", *(*(arr + i) + j), i, j);
                     Coords* hit = createCoords(i,j);
@@ -485,13 +485,27 @@ void findWordIn2dCharArr(LinkedList resultslist, char** arr,  Coords coordinates
     }
 }
 
+int concatTwoInts(int right, int left)
+{
+    double tempRight = right;
+    double tempLeft = left;
+    int count = 1;
+    while(fabs(tempRight) > 0.9) 
+    {
+        count *= 10;
+        tempRight /= 10;
+    }
+    printf("number: %f\n", (tempLeft + tempRight));
+
+    return (int)(((left + tempRight)) * count);
+}
+
 void makeSolutionFromCoords(LinkedList* resultslist, int sizeOfWords, int foundASolution)
 {
     if(foundSolution == 0)
     {
         foundSolution = 1;
         int countOfPath = sizeOfWords;
-        printf("SIZE OF WORD: %d\n", countOfPath);
         while((*resultslist)->data != NULL)
         {
             for(int i = 0; i < bSize; i++)
@@ -502,12 +516,11 @@ void makeSolutionFromCoords(LinkedList* resultslist, int sizeOfWords, int foundA
                     {
                         if((*(*(solutionChart + i)+j)) == 0)
                         {
-                            printf("Changing NUMBER: %d\n", countOfPath);
                             *(*(solutionChart + i)+j) = countOfPath;
                         }
                         else
                         {
-                            *(*(solutionChart + i)+j) = countOfPath;
+                            *(*(solutionChart + i)+j) = concatTwoInts(*(*(solutionChart + i)+j), countOfPath);
                         }
                         i--;
                         j -= 2;
