@@ -19,8 +19,8 @@ struct Node {
 void printPuzzle(char** arr);
 void searchPuzzle(char** arr, char* word);
 char toLower(char c);
-char findWordIn2dCharArr(LinkedList resultslist, char** arr,  Coords coordinates, char* word, int letterSearch);
-void makeSolutionFromCoords(LinkedList* resultslist, int sizeOfWords, int foundASolution);
+char findWordIn2dCharArr(LinkedList* resultslist, char** arr,  Coords coordinates, char* word, int letterSearch);
+void makeSolutionFromCoords(LinkedList resultslist, int sizeOfWords, int foundASolution);
 LinkedList copyLinkedList(LinkedList* original, int dataSize);
 int bSize;
 int foundSolution;
@@ -431,24 +431,30 @@ LinkedList findCharInSurroundings(char** arr, int size, Coords cordinates, char 
 }
 
 //run every possibility DFS searching for  ways to find the word from the one starting point
-char findWordIn2dCharArr(LinkedList resultslist, char** arr,  Coords coordinates, char* word, int letterSearch)
+char findWordIn2dCharArr(LinkedList* resultslist, char** arr,  Coords coordinates, char* word, int letterSearch)
 {
     //handle end of word
-    if(*word == '\0')
+    /*if(*word == '\0')
     {
+        printf("debug:");
+        printsLinkedList(&resultslist);
+        printf("end debug:");
         //this means the right path is found or nothing was entered
         // makeSolutionFromCoords(&resultslist, letterSearch, foundSolution);
         //call function that updates the solution key to have our coords in there
         return 1;
-    }
+    }*/
 
     // //this if statement should be the same as the above one
-    // if(strlen(word) == letterSearch)
-    // {
-    //     //call function that updates the solution key to have our coords in there
-    //     makeSolutionFromCoords(&resultslist, letterSearch, foundSolution);
-    //     return 1;
-    // } 
+     if(strlen(word) == letterSearch)
+     {
+        printf("debug:\n");
+        printsLinkedList(resultslist);
+        printf("end debug:\n");
+         //call function that updates the solution key to have our coords in there
+         //makeSolutionFromCoords(&resultslist, letterSearch, foundSolution);
+         return 1;
+     } 
     
     //find all hits
     LinkedList Hits = findCharInSurroundings(arr, bSize, coordinates, *(word + letterSearch));
@@ -458,19 +464,29 @@ char findWordIn2dCharArr(LinkedList resultslist, char** arr,  Coords coordinates
         // recur with all hits
         Coords* hitCoord = (Coords*) Hits->data;
         char temp = 0;
-        appendLinkedList(&(resultslist), hitCoord);
+        appendLinkedList(resultslist, hitCoord);
         while(Hits != NULL)
         {
             temp = findWordIn2dCharArr(resultslist, arr,  *hitCoord, (word), letterSearch + 1);
+
+            if(temp)
+            {
+                return 1;
+            }
+            else
+            {
+                printf("popped:");
+                printsLinkedList(resultslist);
+                printf("endPopped");
+                popLinkedList(resultslist);
+            }
+
             Hits = Hits->next;
             if (Hits != NULL) 
             {
                 hitCoord = (Coords*)Hits->data;
             }
         }
-        
-        if(temp)
-            popLinkedList(&resultslist);
     }
     else
     {
@@ -503,19 +519,20 @@ int concatTwoInts(int right, int left)
     return (int)(temp);
 }
 
-void makeSolutionFromCoords(LinkedList* resultslist, int sizeOfWords, int foundASolution)
+void makeSolutionFromCoords(LinkedList resultslist, int sizeOfWords, int foundASolution)
 {
     if(foundSolution == 0)
     {
         foundSolution = 1;
         int countOfPath = sizeOfWords;
-        while((*resultslist)->data != NULL)
+        while(resultslist->data != NULL)
         {
             for(int i = 0; i < bSize; i++)
             {
                 for(int j = 0; j < bSize; j++)
                 {
-                    if(i == ((Coords*)((*resultslist)->data))->x && j == ((Coords*)((*resultslist)->data))->y)
+                    printsLinkedList(&resultslist);
+                    if(i == ((Coords*)(resultslist->data))->x && j == ((Coords*)(resultslist->data))->y)
                     {
                         if((*(*(solutionChart + i)+j)) == 0)
                         {
@@ -532,7 +549,7 @@ void makeSolutionFromCoords(LinkedList* resultslist, int sizeOfWords, int foundA
                         {
                             return;
                         }
-                        (*resultslist) = (*resultslist)->next;
+                        resultslist = resultslist->next;
                     }
                 }   
             }
@@ -569,10 +586,12 @@ void searchPuzzle(char** arr, char* word)
     {
         foundSolution = 0;
         LinkedList x = (createLinkedList());
-        x = malloc(strlen(word));
+        //x = malloc(strlen(word));
         appendLinkedList(&x, (Coords*)(found));
-        findWordIn2dCharArr(found, arr, *((Coords*)(found->data)), word, 1);
-        makeSolutionFromCoords(&found, strlen(word), foundSolution);
+        findWordIn2dCharArr(&found, arr, *((Coords*)(found->data)), word, 1);
+        printsLinkedList(&found);
+        printf("endListPrint\n");
+        makeSolutionFromCoords(found, strlen(word), foundSolution);
 
         if(found->next != NULL)
             found = found->next;
