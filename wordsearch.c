@@ -445,11 +445,8 @@ char findWordIn2dCharArr(LinkedList* resultslist, int size, char** arr,  Coords 
     //find all hits from the coord if we are not at the end
     LinkedList hits = findCharInSurroundings(arr, size, coordinates, *word);
 
-    //make and itterator so we can free out linkedlist later
-    LinkedList iterrator = hits;
-
     //loop through the whole linkedList 
-    while(iterrator != NULL)
+    while(hits != NULL)
     {
         //get the coords of our current iteration
         Coords* point = hits->data;
@@ -461,10 +458,8 @@ char findWordIn2dCharArr(LinkedList* resultslist, int size, char** arr,  Coords 
             return 1;
         }
         //next loop since we didn't find it
-        iterrator = iterrator->next;
+       popLinkedList(&hits);
     }
-    //free our linkedList we created
-    freeLinkedList(&hits);
     //we reached the end of this iteration so we should pop before returning up the line, so as to not screw with the data
     popLinkedList(resultslist);
     return 0;
